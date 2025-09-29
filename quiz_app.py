@@ -2,40 +2,61 @@ import streamlit as st
 import time
 from questions import questions
 
-# Constants
-TOTAL_QUESTIONS = len(questions)
-TIME_PER_QUESTION = 60  # seconds
+# Split questions by section
+verbal = questions[0:20]
+numerical = questions[20:40]
+analytical = questions[40:60]
 
-# Session State Setup
-if 'q_index' not in st.session_state:
-    st.session_state.q_index = 0
-if 'score' not in st.session_state:
-    st.session_state.score = 0
+sections = {
+    "Section A – Verbal Ability": verbal,
+    "Section B – Numerical Ability": numerical,
+    "Section C – Analytical Ability": analytical
+}
+
+# Initialize session state
+if 'section' not in st.session_state:
+    st.session_state.section = list(sections.keys())[0]
+
+if 'question_index' not in st.session_state:
+    st.session_state.question_index = 0
+
 if 'start_time' not in st.session_state:
     st.session_state.start_time = time.time()
 
-# Timer logic
-elapsed_time = int(time.time() - st.session_state.start_time)
-remaining_time = TOTAL_QUESTIONS * TIME_PER_QUESTION - elapsed_time
+if 'answers' not in st.session_state:
+    st.session_state.answers = {}
 
-st.title("🧠 1-Hour Multiple Choice Quiz")
-st.markdown(f"**⏳ Time Left:** {remaining_time // 60}:{remaining_time % 60:02d} mins")
+# Sidebar for section selection (only if question_index is 0)
+if st.session_state.question_index == 0:
+    st.session_state.section = st.selectbox("Choose Section", list(sections.keys()))
 
-if remaining_time <= 0:
-    st.warning("⏰ Time's up!")
-    st.success(f"✅ Final Score: {st.session_state.score}/{TOTAL_QUESTIONS}")
-    st.stop()
+# Get questions of current section
+current_questions = sections[st.session_state.section]
 
-# Display current question
-q = questions[st.session_state.q_index]
-st.markdown(f"**Q{st.session_state.q_index + 1}.** {q['question']}")
-user_answer = st.radio("Select an option:", q['options'], key=st.session_state.q_index)
+# Show current question
+q = current_questions[st.session_state.question_index]
+st.markdown(f"### Question {st.session_state.question_index + 1}")
+st.write(q['question'])
+selected = st.radio("Choose one:", q['options'], key=st.session_state.question_index)
 
-if st.button("Next"):
-    if user_answer == q['answer']:
-        st.session_state.score += 1
-    st.session_state.q_index += 1
-    if st.session_state.q_index >= TOTAL_QUESTIONS:
-        st.success(f"🎉 Quiz Completed! Your Score: {st.session_state.score}/{TOTAL_QUESTIONS}")
-        st.stop()
-    st.rerun()
+# Save answer
+st.session_state.answers[st.session_state.question_index] = selected
+
+# Timer logic (60 seconds per question)
+elapsed = int(time.time() - st.session_state.start_time)
+remaining = 60 - elapsed
+if remaining > 0:
+    st.info(f"⏳ Time Remaining: {remaining} seconds")
+    time.sleep(1)
+    st.experimental_rerun()
+else:
+    # Move to next question
+    if st.session_state.question_index < 19:
+        st.session_state.question_index += 1
+        st.session_state.start_time = time.time()
+        st.experimental_rerun()
+    else:
+        st.success("✅ Section completed!")
+        st.write("Your Answers:")
+        for idx, ans in st.session_state.answers.items():
+            st.write(f"Q{idx+1}: {ans}")
