@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from questions import questions
 
 # questions list here (your 60 questions)
 
