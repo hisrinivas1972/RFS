@@ -1,3 +1,5 @@
+import random
+
 questions = [
     # Section A – Verbal Ability
     {"question": "He is known ___ his honesty.", "options": ["for", "of", "about", "to"], "answer": "for"},
@@ -67,28 +69,42 @@ questions = [
 ]
 
 def run_quiz():
+    # Shuffle the questions list
+    random.shuffle(questions)
+
     score = 0
     total = len(questions)
+
     for idx, q in enumerate(questions, start=1):
         print(f"\nQ{idx}. {q['question']}")
-        for i, option in enumerate(q['options'], start=1):
+        
+        # Shuffle options but keep track of correct answer
+        options = q['options'][:]  # copy list
+        random.shuffle(options)
+
+        # Display options
+        for i, option in enumerate(options, start=1):
             print(f"  {i}. {option}")
+
+        # Get user input
         while True:
             try:
                 user_input = int(input("Your answer (1-4): ").strip())
-                if user_input in [1, 2, 3, 4]:
+                if user_input in range(1, len(options) + 1):
                     break
                 else:
-                    print("Please enter a number between 1 and 4.")
+                    print(f"Please enter a number between 1 and {len(options)}.")
             except ValueError:
-                print("Invalid input. Please enter a number between 1 and 4.")
-        selected_option = q['options'][user_input - 1]
+                print("Invalid input. Please enter a valid number.")
+
+        selected_option = options[user_input - 1]
         if selected_option.lower() == q['answer'].lower():
-            print("Correct!")
+            print("✅ Correct!")
             score += 1
         else:
-            print(f"Wrong! Correct answer is: {q['answer']}")
-    print(f"\nQuiz completed! Your score: {score}/{total}")
+            print(f"❌ Wrong! Correct answer is: {q['answer']}")
+
+    print(f"\n🎉 Quiz completed! Your score: {score}/{total}")
 
 if __name__ == "__main__":
     run_quiz()
