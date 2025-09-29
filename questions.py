@@ -68,43 +68,56 @@ questions = [
     {"question": "Ramu’s mother has four children: April, May, June and ?", "options": ["July", "Ramu", "August", "September"], "answer": "Ramu"},
 ]
 
-def run_quiz():
-    # Shuffle the questions list
+def shuffle_questions_and_options(questions):
+    # Shuffle questions list
     random.shuffle(questions)
 
+    # For each question, shuffle options and keep track of correct answer
+    for q in questions:
+        options = q["options"]
+        correct_answer = q["answer"]
+
+        # Shuffle options
+        shuffled_options = options[:]
+        random.shuffle(shuffled_options)
+
+        # Update options in question
+        q["options"] = shuffled_options
+
+        # Update answer index or keep answer as string (better to keep answer as string)
+        # We will check answer by comparing strings later
+
+    return questions
+
+def run_quiz():
+    shuffled_questions = shuffle_questions_and_options(questions)
+
     score = 0
-    total = len(questions)
+    for i, q in enumerate(shuffled_questions, 1):
+        print(f"\nQ{i}: {q['question']}")
 
-    for idx, q in enumerate(questions, start=1):
-        print(f"\nQ{idx}. {q['question']}")
-        
-        # Shuffle options but keep track of correct answer
-        options = q['options'][:]  # copy list
-        random.shuffle(options)
+        for idx, option in enumerate(q["options"], 1):
+            print(f"  {idx}. {option}")
 
-        # Display options
-        for i, option in enumerate(options, start=1):
-            print(f"  {i}. {option}")
-
-        # Get user input
         while True:
             try:
-                user_input = int(input("Your answer (1-4): ").strip())
-                if user_input in range(1, len(options) + 1):
+                choice = int(input("Your answer (1-4): "))
+                if 1 <= choice <= len(q["options"]):
                     break
                 else:
-                    print(f"Please enter a number between 1 and {len(options)}.")
+                    print(f"Please enter a number between 1 and {len(q['options'])}")
             except ValueError:
-                print("Invalid input. Please enter a valid number.")
+                print("Invalid input. Please enter a number.")
 
-        selected_option = options[user_input - 1]
-        if selected_option.lower() == q['answer'].lower():
-            print("✅ Correct!")
+        selected_option = q["options"][choice - 1]
+
+        if selected_option == q["answer"]:
+            print("Correct!")
             score += 1
         else:
-            print(f"❌ Wrong! Correct answer is: {q['answer']}")
+            print(f"Wrong! Correct answer: {q['answer']}")
 
-    print(f"\n🎉 Quiz completed! Your score: {score}/{total}")
+    print(f"\nQuiz finished! Your score: {score} / {len(shuffled_questions)}")
 
 if __name__ == "__main__":
     run_quiz()
