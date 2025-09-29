@@ -1,15 +1,15 @@
 import streamlit as st
 import time
-from questions import questions
+from questions import questions  # Make sure your 60 questions list is here
 
-# questions list here (your 60 questions)
-
+# Split questions into sections
 sections = {
     "Section A – Verbal Ability": questions[0:20],
     "Section B – Numerical Ability": questions[20:40],
     "Section C – Analytical Ability": questions[40:60]
 }
 
+# Initialize session state variables with default values
 if "section_index" not in st.session_state:
     st.session_state.section_index = 0
 if "question_index" not in st.session_state:
@@ -20,9 +20,12 @@ if "answers" not in st.session_state:
     st.session_state.answers = {}
 if "quiz_finished" not in st.session_state:
     st.session_state.quiz_finished = False
+if "rerun_called" not in st.session_state:
+    st.session_state.rerun_called = False  # guard for rerun calls
 
 section_names = list(sections.keys())
 
+# Quiz completed screen
 if st.session_state.quiz_finished:
     st.title("🎉 Quiz Completed!")
     total_correct = 0
@@ -44,18 +47,28 @@ if st.session_state.quiz_finished:
     st.subheader(f"Your Score: {total_correct} / {total_questions}")
 
     if st.button("Restart Quiz"):
-        for key in ["section_index", "question_index", "start_time", "answers", "quiz_finished"]:
-            del st.session_state[key]
+        # Clear all relevant session state keys
+        for key in ["section_index", "question_index", "start_time", "answers", "quiz_finished", "rerun_called"]:
+            if key in st.session_state:
+                del st.session_state[key]
         st.experimental_rerun()
     st.stop()
 
+# Clamp question index safely
 current_section = section_names[st.session_state.section_index]
 current_questions = sections[current_section]
+
 q_idx = st.session_state.question_index
+if q_idx < 0:
+    q_idx = 0
+elif q_idx >= len(current_questions):
+    q_idx = len(current_questions) - 1
+st.session_state.question_index = q_idx
+
 q = current_questions[q_idx]
 
 elapsed = int(time.time() - st.session_state.start_time)
-remaining = max(0, 60 - elapsed)
+remaining = max(0, 60 - elapsed)  # 60 seconds per question
 
 st.title(current_section)
 st.markdown(f"Question {q_idx + 1} of 20")
@@ -68,7 +81,7 @@ if selected:
 
 st.info(f"⏳ Time remaining: {remaining} seconds")
 
-col1, col2, col3 = st.columns([1,6,1])
+col1, col2, col3 = st.columns([1, 6, 1])
 
 with col1:
     if st.button("⬅️ Previous"):
@@ -78,7 +91,9 @@ with col1:
             st.session_state.section_index -= 1
             st.session_state.question_index = 19
         st.session_state.start_time = time.time()
-        st.experimental_rerun()
+        if not st.session_state.rerun_called:
+            st.session_state.rerun_called = True
+            st.experimental_rerun()
 
 with col3:
     if st.button("Next ➡️"):
@@ -91,8 +106,11 @@ with col3:
             else:
                 st.session_state.quiz_finished = True
         st.session_state.start_time = time.time()
-        st.experimental_rerun()
+        if not st.session_state.rerun_called:
+            st.session_state.rerun_called = True
+            st.experimental_rerun()
 
+# Auto-advance when time runs out
 if remaining == 0:
     if q_idx < 19:
         st.session_state.question_index += 1
@@ -103,4 +121,6 @@ if remaining == 0:
         else:
             st.session_state.quiz_finished = True
     st.session_state.start_time = time.time()
-    st.experimental_rerun()
+    if not st.session_state.rerun_called:
+        st.session_state.rerun_called = True
+        st.experimental_rerun()
