@@ -61,4 +61,8 @@ questions = [
     {"question": "Person faces East, turns left, walks 10m, turns left, walks 10m. Direction now?", "options": ["North", "West", "East", "South"], "answer": "West"},
     {"question": "If ‘+’ means ‘×’, ‘×’ means ‘-’, what is 8 + 2 × 3?", "options": ["30", "10", "13", "18"], "answer": "10"},
     {"question": "Which comes next: 1, 4, 9, 16, 25, ?", "options": ["30", "32", "36", "40"], "answer": "36"}
+    {"question": "Find the next number in the series: 3, 6, 12, 24, ?", "options": ["36", "48", "60", "72"], "answer": "48"},
+    {"question": "If all Bloops are Razzies and all Razzies are Lazzies, then all Bloops are definitely Lazzies?", "options": ["True", "False", "Cannot say", "None"], "answer": "True"},
+    {"question": "Which shape comes next in the sequence: square, triangle, circle, square, triangle, ?", "options": ["Circle", "Square", "Triangle", "Rectangle"], "answer": "Circle"},
+
 ]
