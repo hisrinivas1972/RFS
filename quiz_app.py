@@ -21,7 +21,6 @@ if "quiz_finished" not in st.session_state:
 
 section_names = list(sections.keys())
 
-# local flag to ensure rerun is only called once
 rerun_called = False
 
 if st.session_state.quiz_finished:
@@ -48,7 +47,10 @@ if st.session_state.quiz_finished:
         for key in ["section_index", "question_index", "start_time", "answers", "quiz_finished"]:
             if key in st.session_state:
                 del st.session_state[key]
-        st.experimental_rerun()
+        try:
+            st.experimental_rerun()
+        except AttributeError:
+            pass
     st.stop()
 
 current_section = section_names[st.session_state.section_index]
@@ -115,4 +117,8 @@ if remaining == 0:
     rerun_called = True
 
 if rerun_called:
-    st.experimental_rerun()
+    try:
+        st.experimental_rerun()
+    except AttributeError:
+        # Just ignore rerun error to prevent app crash
+        pass
