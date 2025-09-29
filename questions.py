@@ -56,13 +56,39 @@ questions = [
     {"question": "If APPLE = BQQMF, then MANGO = ?", "options": ["NBOHP", "NBOPH", "NBPHO", "OBPHN"], "answer": "NBPHO"},
     {"question": "Complete the series: 121, 144, 169, 196, ?", "options": ["221", "225", "231", "240"], "answer": "225"},
     {"question": "If vowels are removed from 'EXAMINATION', how many letters are left?", "options": ["6", "7", "8", "9"], "answer": "6"},
-    {"question": "Statement: All roses are flowers. Some flowers fade quickly. Conclusion?", "options": ["Only I", "Only II", "Both", "Neither"], "answer": "Only II"},
-    {"question": "Find the odd number:", "options": ["121", "169", "143", "196"], "answer": "143"},
-    {"question": "Person faces East, turns left, walks 10m, turns left, walks 10m. Direction now?", "options": ["North", "West", "East", "South"], "answer": "West"},
-    {"question": "If ‘+’ means ‘×’, ‘×’ means ‘-’, what is 8 + 2 × 3?", "options": ["30", "10", "13", "18"], "answer": "10"},
-    {"question": "Which comes next: 1, 4, 9, 16, 25, ?", "options": ["30", "32", "36", "40"], "answer": "36"}
+    {"question": "Which comes next: 1, 4, 9, 16, 25, ?", "options": ["30", "32", "36", "40"], "answer": "36"},
     {"question": "Find the next number in the series: 3, 6, 12, 24, ?", "options": ["36", "48", "60", "72"], "answer": "48"},
-    {"question": "If all Bloops are Razzies and all Razzies are Lazzies, then all Bloops are definitely Lazzies?", "options": ["True", "False", "Cannot say", "None"], "answer": "True"},
-    {"question": "Which shape comes next in the sequence: square, triangle, circle, square, triangle, ?", "options": ["Circle", "Square", "Triangle", "Rectangle"], "answer": "Circle"},
-
+    {"question": "If 5x – 3 = 2x + 12, find x.", "options": ["5", "4", "3", "6"], "answer": "5"},
+    {"question": "Find the odd one out: 2, 3, 5, 9, 11", "options": ["2", "3", "5", "9"], "answer": "9"},
+    {"question": "If in a code, TABLE is written as YFOQJ, how is CHAIR written?", "options": ["HMFNV", "HMJNV", "HMKNV", "HMFNV"], "answer": "HMFNV"},
+    {"question": "Complete the analogy: Apple is to Fruit as Carrot is to ?", "options": ["Vegetable", "Fruit", "Plant", "Root"], "answer": "Vegetable"},
+    {"question": "If today is Monday, what day will be after 45 days?", "options": ["Saturday", "Sunday", "Monday", "Tuesday"], "answer": "Wednesday"},
+    {"question": "Ramu’s mother has four children: April, May, June and ?", "options": ["July", "Ramu", "August", "September"], "answer": "Ramu"},
 ]
+
+def run_quiz():
+    score = 0
+    total = len(questions)
+    for idx, q in enumerate(questions, start=1):
+        print(f"\nQ{idx}. {q['question']}")
+        for i, option in enumerate(q['options'], start=1):
+            print(f"  {i}. {option}")
+        while True:
+            try:
+                user_input = int(input("Your answer (1-4): ").strip())
+                if user_input in [1, 2, 3, 4]:
+                    break
+                else:
+                    print("Please enter a number between 1 and 4.")
+            except ValueError:
+                print("Invalid input. Please enter a number between 1 and 4.")
+        selected_option = q['options'][user_input - 1]
+        if selected_option.lower() == q['answer'].lower():
+            print("Correct!")
+            score += 1
+        else:
+            print(f"Wrong! Correct answer is: {q['answer']}")
+    print(f"\nQuiz completed! Your score: {score}/{total}")
+
+if __name__ == "__main__":
+    run_quiz()
