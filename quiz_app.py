@@ -1,6 +1,5 @@
 import streamlit as st
 import time
-from questions import questions
 
 sections = {
     "Section A – Verbal Ability": questions[0:20],
