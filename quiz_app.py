@@ -1,12 +1,15 @@
 import streamlit as st
 import time
+from questions import questions  # Make sure your questions list is imported correctly
 
+# Define sections with slices of questions (adjust slices as per your questions list)
 sections = {
     "Section A – Verbal Ability": questions[0:20],
     "Section B – Numerical Ability": questions[20:40],
     "Section C – Analytical Ability": questions[40:60]
 }
 
+# Initialize session state variables
 if "section_index" not in st.session_state:
     st.session_state.section_index = 0
 if "question_index" not in st.session_state:
@@ -20,12 +23,12 @@ if "quiz_finished" not in st.session_state:
 
 section_names = list(sections.keys())
 
-rerun_called = False
-
+# If quiz finished, show results and restart option
 if st.session_state.quiz_finished:
     st.title("🎉 Quiz Completed!")
     total_correct = 0
     total_questions = 0
+
     for sec_i, sec_name in enumerate(section_names):
         st.header(sec_name)
         for q_i, q in enumerate(sections[sec_name]):
@@ -40,6 +43,7 @@ if st.session_state.quiz_finished:
             st.write(f"Correct answer: {q['answer']}")
             st.write(f"{'✅ Correct' if correct else '❌ Incorrect'}")
             st.markdown("---")
+
     st.subheader(f"Your Score: {total_correct} / {total_questions}")
 
     if st.button("Restart Quiz"):
@@ -52,32 +56,44 @@ if st.session_state.quiz_finished:
             pass
     st.stop()
 
+# Get current section and questions
 current_section = section_names[st.session_state.section_index]
 current_questions = sections[current_section]
 
+# Ensure question index in valid range
 q_idx = st.session_state.question_index
+max_index = len(current_questions) - 1
+
 if q_idx < 0:
     q_idx = 0
-elif q_idx >= len(current_questions):
-    q_idx = len(current_questions) - 1
+elif q_idx > max_index:
+    q_idx = max_index
 st.session_state.question_index = q_idx
 
 q = current_questions[q_idx]
 
+# Timer: 60 seconds per question
 elapsed = int(time.time() - st.session_state.start_time)
 remaining = max(0, 60 - elapsed)
 
+# Display section and question
 st.title(current_section)
-st.markdown(f"Question {q_idx + 1} of 20")
+st.markdown(f"Question {q_idx + 1} of {len(current_questions)}")
 st.write(q['question'])
 
+# Radio options with unique key
 selected = st.radio("Choose one:", q['options'], key=f"sec{st.session_state.section_index}_q{q_idx}")
 
+# Save selected answer
 if selected:
     st.session_state.answers[(st.session_state.section_index, q_idx)] = selected
 
+# Show remaining time
 st.info(f"⏳ Time remaining: {remaining} seconds")
 
+rerun_called = False
+
+# Navigation buttons
 col1, col2, col3 = st.columns([1, 6, 1])
 
 with col1:
@@ -86,16 +102,17 @@ with col1:
             st.session_state.question_index -= 1
         elif st.session_state.section_index > 0:
             st.session_state.section_index -= 1
-            st.session_state.question_index = 19
+            prev_section = section_names[st.session_state.section_index]
+            st.session_state.question_index = len(sections[prev_section]) - 1
         st.session_state.start_time = time.time()
         rerun_called = True
 
 with col3:
     if st.button("Next ➡️"):
-        if q_idx < 19:
+        if q_idx < max_index:
             st.session_state.question_index += 1
         else:
-            if st.session_state.section_index < 2:
+            if st.session_state.section_index < len(section_names) - 1:
                 st.session_state.section_index += 1
                 st.session_state.question_index = 0
             else:
@@ -103,11 +120,12 @@ with col3:
         st.session_state.start_time = time.time()
         rerun_called = True
 
+# Auto move to next question when timer ends
 if remaining == 0:
-    if q_idx < 19:
+    if q_idx < max_index:
         st.session_state.question_index += 1
     else:
-        if st.session_state.section_index < 2:
+        if st.session_state.section_index < len(section_names) - 1:
             st.session_state.section_index += 1
             st.session_state.question_index = 0
         else:
@@ -115,9 +133,9 @@ if remaining == 0:
     st.session_state.start_time = time.time()
     rerun_called = True
 
+# Rerun app if needed
 if rerun_called:
     try:
         st.experimental_rerun()
     except AttributeError:
-        # Just ignore rerun error to prevent app crash
         pass
